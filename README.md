@@ -9,7 +9,7 @@
             font-family: Arial, sans-serif;
             font-size: 12px;
             color: #000;
-            max-width: 800px; /* Ancho para simular formato A4/Carta */
+            max-width: 800px; 
             margin: 0 auto;
             padding: 20px;
         }
@@ -25,7 +25,7 @@
             text-align: center;
         }
         .company-info h1 {
-            color: #004481; /* Color azul estilo Hogaluz */
+            color: #004481;
             margin: 0;
             font-size: 32px;
             display: flex;
@@ -87,7 +87,6 @@
             margin-bottom: 3px;
         }
         
-        /* Ocultar margen de página al imprimir */
         @media print {
             @page { margin: 10mm; }
             body { padding: 0; }
@@ -102,7 +101,7 @@
             <div class="title">TICKET DE TIENDA</div>
             <div class="info-line">Nro. de Ticket: <span id="ticket">000000</span></div>
             <div class="info-line">Fecha: <span id="fecha">--/--/----</span></div>
-            <div class="info-line">Tipo de documento: <span id="tipo_doc">Nota de Venta</span></div>
+            <div class="info-line">Tipo de documento: <span id="documento">Nota de Venta</span></div>
             <div class="info-line">Cliente: <span id="cliente">-</span></div>
             <div class="info-line">DNI/RUC: <span id="dni">-</span></div>
             <div class="info-line">Dirección: <span id="direccion">-</span></div>
@@ -111,7 +110,6 @@
         
         <!-- Datos de la Empresa -->
         <div class="company-info">
-            <!-- Puedes reemplazar el texto por una etiqueta <img> con el logo de tu GitHub -->
             <h1>Hogaluz</h1> 
             <div class="info-line">RUC: 10024374896</div>
             <div class="info-line">URB. CERCADO, JULIACA, PUNO</div>
@@ -121,18 +119,17 @@
         </div>
     </div>
 
-    <!-- Tabla de Productos -->
+    <!-- Tabla de Productos (Related VENTASs) -->
     <table>
         <thead>
             <tr>
                 <th>Cantidad</th>
-                <th>Concepto</th>
+                <th>Descripción</th>
                 <th>Precio</th>
-                <th>Extendido</th>
+                <th>Subtotal</th>
             </tr>
         </thead>
         <tbody id="lista-productos">
-            <!-- Los productos se inyectarán aquí mediante JS -->
             <tr>
                 <td colspan="4" style="text-align:center;">Cargando productos...</td>
             </tr>
@@ -157,11 +154,10 @@
         </table>
     </div>
 
-    <!-- Info del Vendedor -->
+    <!-- Info del Vendedor / Local -->
     <div class="footer-info">
-        <div class="info-line">Forma de pago: <span id="forma_pago">Efectivo</span></div>
-        <div class="info-line">Vendedor: <span id="vendedor">Sergio</span></div>
-        <div class="info-line">Local: <span id="local">Jr. 8 de noviembre 575</span></div>
+        <div class="info-line">Vendedor: <span id="vendedor">-</span></div>
+        <div class="info-line">Local: <span id="local">-</span></div>
     </div>
 
     <!-- Textos Legales -->
@@ -174,19 +170,17 @@
         Este ticket corresponde a la constancia de la operación realizada en nuestra tienda y NO constituye Boleta de Venta, Factura ni Comprobante de Pago válido ante SUNAT. La Boleta de Venta Electrónica o Factura Electrónica correspondiente a esta operación se encuentra pendiente de emisión y será enviada al cliente utilizando los datos proporcionados al momento de realizar la compra.
         <br><br>
         Importante: Verifique que sus datos personales y/o tributarios registrados en este ticket sean correctos. En caso de existir algún error o requerir alguna modificación, comuníquese a la brevedad a los números de contacto indicados en este ticket.
-        <br><br>
-        Para cualquier consulta relacionada con la emisión o recepción de su comprobante electrónico, comuníquese con nosotros indicando el número de ticket correspondiente.
     </div>
     <div class="info-line" style="text-align:center; font-weight:bold;">
         Tel. 961 011 400 - 912 906 262
     </div>
 
     <script>
-        // Capturar los parámetros de la URL
+        // Capturar parámetros de la URL
         const params = new URLSearchParams(window.location.search);
 
-        // Mapear los datos simples
-        const campos = ['ticket', 'fecha', 'tipo_doc', 'cliente', 'dni', 'direccion', 'telefono', 'subtotal', 'descuento', 'total', 'forma_pago', 'vendedor', 'local'];
+        // Mapear los datos de la tabla COMPROBANTE
+        const campos = ['fecha', 'documento', 'dni', 'cliente', 'direccion', 'telefono', 'subtotal', 'descuento', 'ticket', 'local', 'vendedor'];
         
         campos.forEach(campo => {
             if(params.has(campo) && params.get(campo) !== "") {
@@ -194,27 +188,31 @@
             }
         });
 
-        // Lógica para inyectar los productos de la tabla
-        // Formato esperado en la URL: ?items=2|Foco Bombilla 7w|7.00|14.00*1|Cable|5.00|5.00
+        // Calcular y mostrar el Total (Subtotal - Descuento)
+        const valSubtotal = parseFloat(params.get('subtotal')) || 0;
+        const valDescuento = parseFloat(params.get('descuento')) || 0;
+        document.getElementById('total').innerText = (valSubtotal - valDescuento).toFixed(2);
+
+        // Lógica para inyectar los productos de la tabla [Related VENTASs]
         const itemsParam = params.get('items');
         const listaProductos = document.getElementById('lista-productos');
 
         if (itemsParam) {
-            listaProductos.innerHTML = ''; // Limpiar el "Cargando"
+            listaProductos.innerHTML = ''; 
             
             // Separar cada producto por el asterisco (*)
             const productos = itemsParam.split('*'); 
             
             productos.forEach(prod => {
-                // Separar los detalles de cada producto por la barra vertical (|)
+                // Separar (UNIDADES | DESCRIPCIÓN | PRECIO | SUBTOTAL) por la barra vertical (|)
                 const detalles = prod.split('|'); 
                 if(detalles.length === 4) {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>${detalles[0]}</td>
                         <td>${detalles[1]}</td>
-                        <td>S/ ${detalles[2]}</td>
-                        <td>S/ ${detalles[3]}</td>
+                        <td>S/ ${parseFloat(detalles[2]).toFixed(2)}</td>
+                        <td>S/ ${parseFloat(detalles[3]).toFixed(2)}</td>
                     `;
                     listaProductos.appendChild(tr);
                 }
@@ -223,7 +221,7 @@
             listaProductos.innerHTML = '<tr><td colspan="4" style="text-align:center;">No se registraron productos.</td></tr>';
         }
 
-        // Imprimir automáticamente (opcional, puedes quitarlo si prefieres que el usuario le de CTRL+P)
+        // Ejecutar impresión automática
         window.onload = function() {
             setTimeout(() => { window.print(); }, 500);
         }
