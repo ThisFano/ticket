@@ -23,9 +23,10 @@
             font-size: 12px;
             line-height: 1.45;
             color: var(--color-texto);
-            max-width: 800px;
+            width: 100%;
+            max-width: 210mm; /* ancho real de una hoja A4, no un valor arbitrario de diseño web */
             margin: 0 auto;
-            padding: 28px 24px;
+            padding: 14mm 12mm; /* mismo margen lateral que @page, para que pantalla e impresión coincidan */
         }
 
         /* ===================== ENCABEZADO ===================== */
@@ -288,8 +289,10 @@
                 margin: 12mm;
             }
             body {
-                padding: 0;
+                width: 100%;
                 max-width: 100%;
+                margin: 0;
+                padding: 0; /* el espacio ya lo define @page margin; evita restar ancho dos veces */
             }
         }
     </style>
